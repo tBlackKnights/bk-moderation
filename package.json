@@ -1,0 +1,34 @@
+{
+  "name": "tbk-moderation",
+  "version": "1.0.0",
+  "description": "Exclusive moderation bot for TBK.",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=production node src",
+    "deploy": "node src/scripts/deployCommands.js",
+    "deploy:dev": "cross-env NODE_ENV=development node src/scripts/deployCommands.js",
+    "dev": "cross-env NODE_ENV=development nodemon src",
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:migrate:undo:all": "npx sequelize-cli db:migrate:undo:all",
+    "db:seed": "npx sequelize db:seed:all",
+    "db:model": "npx sequelize-cli migration:generate --name create_example_table"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cross-env": "^10.1.0",
+    "discord.js": "^14.25.1",
+    "dotenv": "^17.3.1",
+    "fs": "^0.0.1-security",
+    "joi": "^18.0.2",
+    "path": "^0.12.7",
+    "sequelize": "^6.37.7",
+    "sqlite3": "^5.1.7",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
