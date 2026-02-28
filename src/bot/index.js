@@ -56,8 +56,6 @@ for (const file of eventFiles) {
 }
 logger.info(`${eventCount} Events loaded.`);
 
-/**
- * 
 logger.info(path.join(__dirname, "interactions", "buttons"))
 const buttonFiles = fs
   .readdirSync(path.join(__dirname, "interactions", "buttons"))
@@ -82,7 +80,6 @@ for (const file of modalFiles) {
   const modal = require(`./interactions/modals/${file}`);
   client.modals.set(modal.customId, modal);
 }
- */
 
 logger.info(`Starting BOT`);
 

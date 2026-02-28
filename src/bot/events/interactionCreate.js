@@ -10,11 +10,11 @@ module.exports = {
             if (interaction.isCommand()) {
                 await handleSlashCommand(interaction, client);
             } else if (interaction.isButton()) {
-                // await handleButton(interaction, client);
+                await handleButton(interaction, client);
             } else if (interaction.isStringSelectMenu()) {
-                // await handleSelectMenu(interaction, client);
+                await handleSelectMenu(interaction, client);
             } else if (interaction.isModalSubmit()) {
-                // await handleModal(interaction, client);
+                await handleModal(interaction, client);
             } else {
                 logger.warn(`Unknown interaction type: ${interaction.type}`);
             }
@@ -45,9 +45,69 @@ async function handleSlashCommand(interaction, client) {
     } catch (error) {
         logger.error(`Error executing command ${interaction.commandName}: ${error}`);
         if (interaction.replied || interaction.deferred) {
-            await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+            await interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
         } else {
-            await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+        }
+    }
+}
+
+async function handleButton(interaction, client) {
+    const button = client.buttons.get(interaction.customId);
+
+    if (!button) {
+        logger.error(`No button matching ${interaction.customId} was found.`);
+        return;
+    }
+
+    try {
+        await button.execute(interaction, client);
+    } catch (error) {
+        logger.error(`Error executing button ${interaction.customId}: ${error}`);
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp({ content: 'There was an error while executing this button!', flags: MessageFlags.Ephemeral });
+        } else {
+            await interaction.reply({ content: 'There was an error while executing this button!', flags: MessageFlags.Ephemeral });
+        }
+    }
+}
+
+async function handleModal(interaction, client) {
+    const modal = client.modals.get(interaction.customId);
+
+    if (!modal) {
+        logger.error(`No modal matching ${interaction.customId} was found.`);
+        return;
+    }
+
+    try {
+        await modal.execute(interaction, client);
+    } catch (error) {
+        logger.error(`Error executing modal ${interaction.customId}: ${error}`);
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp({ content: 'There was an error while executing this modal!', flags: MessageFlags.Ephemeral });
+        } else {
+            await interaction.reply({ content: 'There was an error while executing this modal!', flags: MessageFlags.Ephemeral });
+        }
+    }
+}
+
+async function handleSelectMenu(interaction, client) {
+    const menu = client.selectMenus.get(interaction.customId);
+
+    if (!menu) {
+        logger.error(`No select menu matching ${interaction.customId} was found.`);
+        return;
+    }
+
+    try {
+        await menu.execute(interaction, client);
+    } catch (error) {
+        logger.error(`Error executing select menu ${interaction.customId}: ${error}`);
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp({ content: 'There was an error while executing this select menu!', flags: MessageFlags.Ephemeral });
+        } else {
+            await interaction.reply({ content: 'There was an error while executing this select menu!', flags: MessageFlags.Ephemeral });
         }
     }
 }
