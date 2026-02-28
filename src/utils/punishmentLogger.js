@@ -25,15 +25,26 @@ async function logPunishment(interaction, data) {
         .addFields(
             { name: "Offender", value: `${data.offender.tag} (${data.offender.id})` },
             { name: "Offense", value: data.offense || "No reason provided" },
-            { name: "Punishment", value: data.punishment },
-            { name: "Proof", value: data.proof ? "Attached below" : "None provided" }
+            { name: "Punishment", value: data.punishment }
         )
         .setTimestamp()
         .setFooter({ text: `Moderator: ${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL() });
 
-    const options = { embeds: [embed] };
+    const options = { embeds: [embed], files: [] };
+
     if (data.proof) {
-        options.files = [data.proof];
+        options.files.push(data.proof);
+
+        const isImage = data.proof.contentType?.startsWith("image/");
+
+        if (isImage) {
+            embed.setImage(`attachment://${data.proof.name}`);
+            embed.addFields({ name: "Proof", value: "Image attached below" });
+        } else {
+            embed.addFields({ name: "Proof", value: `[${data.proof.name}](${data.proof.proxyURL || data.proof.url})` });
+        }
+    } else {
+        embed.addFields({ name: "Proof", value: "None provided" });
     }
 
     await channel.send(options);
