@@ -18,8 +18,6 @@ module.exports = {
         if (userInputText.toLowerCase() === actualCaptchaText.toLowerCase()) {
             captchaStore.delete(interaction.user.id);
 
-         
-
             const config = await GuildConfig.findByPk(interaction.guildId);
             const roleId = config?.verifiedRoleId;
 

@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { PermissionFlagsBits, MessageFlags } = require("discord.js");
+const { logPunishment } = require("../../../utils/punishmentLogger");
 
 const messageDeletionMap = {
     none: 0,
@@ -15,12 +16,12 @@ module.exports = {
     aliases: ["ban"],
     data: new SlashCommandBuilder()
         .setName("ban")
-        .setDescription("Ban someone.")
+        .setDescription("Ban one or more users.")
         .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers)
         .addStringOption((option) =>
             option
-                .setName("user")
-                .setDescription("User to be banned.")
+                .setName("users")
+                .setDescription("Mention or IDs of users to ban (separated by space or comma).")
                 .setRequired(true)
         )
         .addStringOption((option) =>
@@ -43,16 +44,62 @@ module.exports = {
                 .setName("reason")
                 .setDescription("Reason for the ban.")
                 .setRequired(false)
+        )
+        .addAttachmentOption((option) =>
+            option
+                .setName("proof")
+                .setDescription("Proof of the offense.")
+                .setRequired(false)
         ),
     async slashExecute(interaction) {
-        const user = interaction.options.getString("user");
+        const usersInput = interaction.options.getString("users");
         const deleteMessages = interaction.options.getString("delete_messages");
-        const reason = interaction.options.getString("reason");
+        const reason = interaction.options.getString("reason") || "No reason provided";
+        const proof = interaction.options.getAttachment("proof");
+
+        const userIds = [...new Set(usersInput.match(/\d{17,19}/g))];
+        if (!userIds || userIds.length === 0) {
+            return interaction.reply({ content: "❌ No valid user IDs or mentions found.", flags: MessageFlags.Ephemeral });
+        }
+
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+        const results = [];
+        const deleteSeconds = messageDeletionMap[deleteMessages];
+
+        for (const userId of userIds) {
+            try {
+                // We attempt to fetch member, but we can also ban users NOT in the guild
+                const user = await interaction.client.users.fetch(userId).catch(() => null);
+                if (!user) {
+                    results.push(`❌ <@${userId}>: User not found.`);
+                    continue;
+                }
+
+                await interaction.guild.members.ban(user.id, {
+                    deleteMessageSeconds: deleteSeconds,
+                    reason: reason
+                });
+
+                results.push(`✅ <@${userId}>: Banned.`);
+
+                // Log punishment
+                await logPunishment(interaction, {
+                    offender: user,
+                    offense: reason,
+                    punishment: "Ban",
+                    proof: proof
+                });
+
+            } catch (error) {
+                results.push(`❌ <@${userId}>: Failed to ban (${error.message}).`);
+            }
+        }
+
+        await interaction.editReply({ content: results.join("\n") });
     },
     async messageExecute(message) {
-        const args = message.content.split(" ");
-        const user = args[1];
-        const deleteMessages = args[2];
-        const reason = args.slice(3).join(" ");
+        // Legacy message command support not fully requested to be updated with proof/multiple users yet, 
+        // focus on slash commands as per current bot architecture.
     }
 }

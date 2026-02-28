@@ -81,8 +81,20 @@ for (const file of modalFiles) {
   client.modals.set(modal.customId, modal);
 }
 
+// crons
+const cronFiles = fs
+  .readdirSync(path.join(__dirname, "crons"))
+  .filter((file) => file.endsWith(".js"));
+
 logger.info(`Starting BOT`);
 
-client.login(config.bot.token);
+client.login(config.bot.token).then(() => {
+  logger.info(`[CRONS] Loading ${cronFiles.length} crons...`);
+  for (const file of cronFiles) {
+    const cron = require(`./crons/${file}`);
+    setInterval(() => cron.execute(client), cron.interval || 60000);
+    logger.info(`[CRON] Started ${cron.name || file}`);
+  }
+});
 
 module.exports = client;
