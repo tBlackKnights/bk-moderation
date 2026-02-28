@@ -24,6 +24,9 @@ const envVarsSchema = Joi.object()
     DB_HOST: Joi.string().allow(null, "").optional(),
     DB_PASSWORD: Joi.string().allow(null, "").optional(),
     DB_STORAGE: Joi.string().allow(null, "").optional(),
+    // Mococo
+    MOCOCO_API_KEY: Joi.string().allow(null, "").optional(),
+    MOCOCO_API_URL: Joi.string().default("https://api.moco-co.org/checkusers"),
   })
   .unknown();
 
@@ -49,5 +52,9 @@ module.exports = {
     host: envVars.DB_HOST,
     password: envVars.DB_PASSWORD,
     storage: envVars.DB_STORAGE,
+  },
+  mococo: {
+    apiKey: envVars.MOCOCO_API_KEY,
+    apiUrl: envVars.MOCOCO_API_URL,
   }
 };
