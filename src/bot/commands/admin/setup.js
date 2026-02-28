@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const { PermissionFlagsBits, MessageFlags, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const GuildConfig = require("../../../database/models/GuildConfig");
 
 module.exports = {
     aliases: ["setup"],
@@ -17,10 +18,35 @@ module.exports = {
                         .setDescription("Channel to send the verification messages.")
                         .setRequired(true)
                 )
+                .addRoleOption((option) =>
+                    option
+                        .setName("role")
+                        .setDescription("Role to give after verification.")
+                        .setRequired(true)
+                )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("logs")
+                .setDescription("Setup the punishment logs.")
+                .addChannelOption((option) =>
+                    option
+                        .setName("channel")
+                        .setDescription("Channel to send the punishment logs.")
+                        .setRequired(true)
+                )
         ),
     async slashExecute(interaction) {
-        if (interaction.options.getSubcommand() === "verification") {
+        const subcommand = interaction.options.getSubcommand();
+
+        if (subcommand === "verification") {
             const channel = interaction.options.getChannel("channel");
+            const role = interaction.options.getRole("role");
+
+            await GuildConfig.upsert({
+                guildId: interaction.guildId,
+                verifiedRoleId: role.id
+            });
 
             const embed = new EmbedBuilder()
                 .setTitle("Verification Required")
@@ -37,7 +63,21 @@ module.exports = {
             await channel.send({ embeds: [embed], components: [row] });
 
             await interaction.reply({
-                content: "Verification message has been sent successfully.",
+                content: `Verification message sent to ${channel} and role ${role} saved.`,
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        if (subcommand === "logs") {
+            const channel = interaction.options.getChannel("channel");
+
+            await GuildConfig.upsert({
+                guildId: interaction.guildId,
+                punishmentLogsChannelId: channel.id
+            });
+
+            await interaction.reply({
+                content: `Punishment logs channel set to ${channel}.`,
                 flags: MessageFlags.Ephemeral
             });
         }

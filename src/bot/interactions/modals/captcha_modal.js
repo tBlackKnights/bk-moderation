@@ -1,5 +1,6 @@
 const { MessageFlags } = require("discord.js");
 const captchaStore = require("../../../utils/captchaStore");
+const GuildConfig = require("../../../database/models/GuildConfig");
 
 module.exports = {
     customId: "captcha_modal",
@@ -16,13 +17,27 @@ module.exports = {
 
         if (userInputText.toLowerCase() === actualCaptchaText.toLowerCase()) {
             captchaStore.delete(interaction.user.id);
-            
-            await interaction.reply({
-                content: "✅ Verification successful! Welcome to The Black Knights.",
-                flags: MessageFlags.Ephemeral
-            });
 
-            await interaction.member.roles.add("1477361198344441918");
+         
+
+            const config = await GuildConfig.findByPk(interaction.guildId);
+            const roleId = config?.verifiedRoleId;
+
+            if (roleId) {
+                await interaction.member.roles.add(roleId).catch(err => {
+                    console.error(`Failed to add role ${roleId} to user ${interaction.user.id}: ${err}`);
+                });
+
+                await interaction.reply({
+                    content: "✅ Verification successful! Welcome to The Black Knights.",
+                    flags: MessageFlags.Ephemeral
+                });
+            } else {
+                await interaction.reply({
+                    content: `No verifiedRoleId found for guild ${interaction.guildId}. Please contact an administrator.`,
+                    flags: MessageFlags.Ephemeral
+                });
+            }
 
         } else {
             await interaction.reply({
