@@ -29,7 +29,7 @@ module.exports = {
                 });
 
                 await interaction.reply({
-                    content: "✅ Verification successful! Welcome to The Black Knights.",
+                    content: `✅ Verification successful! Welcome to ${interaction.guild.name}.`,
                     flags: MessageFlags.Ephemeral
                 });
             } else {
