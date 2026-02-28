@@ -53,17 +53,30 @@ async function handleSlashCommand(interaction, client) {
 }
 
 async function handleButton(interaction, client) {
-    const button = client.buttons.get(interaction.customId);
+    // Support dynamic customId: baseId:authorId:param1:param2...
+    const parts = interaction.customId.split(":");
+    const baseId = parts[0];
+    const authorId = parts[1];
+
+    // Global Check: If an authorId is provided in the customId, verify it
+    if (authorId && authorId !== interaction.user.id) {
+        return interaction.reply({
+            content: "❌ Only the author of the command can use these buttons.",
+            flags: MessageFlags.Ephemeral
+        });
+    }
+
+    const button = client.buttons.get(baseId);
 
     if (!button) {
-        logger.error(`No button matching ${interaction.customId} was found.`);
+        logger.error(`No button matching ${baseId} was found.`);
         return;
     }
 
     try {
-        await button.execute(interaction, client);
+        await button.execute(interaction, client, parts.slice(1));
     } catch (error) {
-        logger.error(`Error executing button ${interaction.customId}: ${error}`);
+        logger.error(`Error executing button ${baseId}: ${error}`);
         if (interaction.replied || interaction.deferred) {
             await interaction.followUp({ content: 'There was an error while executing this button!', flags: MessageFlags.Ephemeral });
         } else {

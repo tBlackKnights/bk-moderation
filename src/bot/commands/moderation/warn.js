@@ -56,6 +56,13 @@ module.exports = {
                     moderatorId: interaction.user.id
                 });
 
+                // Send DM to user
+                await user.send({
+                    content: `⚠️ You have been warned in **${interaction.guild.name}**.\n**Reason:** ${reason}`
+                }).catch(() => {
+                    console.warn(`Could not send DM to user ${user.id}.`);
+                });
+
                 results.push(`✅ <@${userId}>: Warned.`);
 
                 // Log punishment
