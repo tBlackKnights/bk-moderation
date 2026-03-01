@@ -24,6 +24,12 @@ module.exports = {
                         .setDescription("Role to give after verification.")
                         .setRequired(true)
                 )
+                .addRoleOption((option) =>
+                    option
+                        .setName("unverified_role")
+                        .setDescription("Role to remove after verification.")
+                        .setRequired(false)
+                )
         )
         .addSubcommand((subcommand) =>
             subcommand
@@ -42,10 +48,12 @@ module.exports = {
         if (subcommand === "verification") {
             const channel = interaction.options.getChannel("channel");
             const role = interaction.options.getRole("role");
+            const unverifiedRole = interaction.options.getRole("unverified_role");
 
             await GuildConfig.upsert({
                 guildId: interaction.guildId,
-                verifiedRoleId: role.id
+                verifiedRoleId: role.id,
+                unverifiedRoleId: unverifiedRole?.id || null
             });
 
             const embed = new EmbedBuilder()

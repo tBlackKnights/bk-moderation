@@ -13,6 +13,10 @@ class GuildConfig extends Model {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            unverifiedRoleId: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
             punishmentLogsChannelId: {
                 type: DataTypes.STRING,
                 allowNull: true,

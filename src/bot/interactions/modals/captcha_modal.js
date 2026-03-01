@@ -20,11 +20,18 @@ module.exports = {
 
             const config = await GuildConfig.findByPk(interaction.guildId);
             const roleId = config?.verifiedRoleId;
+            const unverifiedRoleId = config?.unverifiedRoleId;
 
             if (roleId) {
                 await interaction.member.roles.add(roleId).catch(err => {
                     console.error(`Failed to add role ${roleId} to user ${interaction.user.id}: ${err}`);
                 });
+
+                if (unverifiedRoleId) {
+                    await interaction.member.roles.remove(unverifiedRoleId).catch(err => {
+                        console.error(`Failed to remove role ${unverifiedRoleId} from user ${interaction.user.id}: ${err}`);
+                    });
+                }
 
                 await interaction.reply({
                     content: `✅ Verification successful! Welcome to ${interaction.guild.name}.`,
