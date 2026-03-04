@@ -27,23 +27,32 @@ module.exports = {
                 return interaction.editReply({ content: `No users found with the ${role} role.` });
             }
 
-            const memberList = members.map(m => `<@${m.id}>`);
+            const mentionsArray = members.map(m => `<@${m.id}>`);
+            const idsArray = members.map(m => m.id);
 
             const chunks = [];
-            let currentChunk = `Total users with the ${role} role: **${members.size}**\n\n`;
 
-            for (const member of memberList) {
-                if (currentChunk.length + member.length + 2 > 2000) {
-                    chunks.push(currentChunk.replace(/, $/, ''));
-                    currentChunk = member + ", ";
+            let currentMentions = `Total users with the ${role} role: **${members.size}**\n\n**Menções:**\n\`\`\`\n`;
+            for (const mention of mentionsArray) {
+                if (currentMentions.length + mention.length + 5 > 1900) {
+                    chunks.push(currentMentions.trim() + "\n```");
+                    currentMentions = "**Menções (cont.):**\n```\n" + mention + " ";
                 } else {
-                    currentChunk += member + ", ";
+                    currentMentions += mention + " ";
                 }
             }
+            chunks.push(currentMentions.trim() + "\n```");
 
-            if (currentChunk) {
-                chunks.push(currentChunk.replace(/, $/, ''));
+            let currentIDs = "**IDs:**\n```\n";
+            for (const id of idsArray) {
+                if (currentIDs.length + id.length + 5 > 1900) {
+                    chunks.push(currentIDs.trim() + "\n```");
+                    currentIDs = "**IDs (cont.):**\n```\n" + id + " ";
+                } else {
+                    currentIDs += id + " ";
+                }
             }
+            chunks.push(currentIDs.trim() + "\n```");
 
             await interaction.editReply({ content: chunks[0] });
 
