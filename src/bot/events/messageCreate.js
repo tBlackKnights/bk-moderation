@@ -13,6 +13,19 @@ module.exports = {
         const { client } = message;
 
         if (message.author.bot) return;
+
+        // Auto remove unverified when talk in general
+        const TARGET_CHANNEL_ID = "685101897627205634";
+        const TARGET_ROLE_ID = "1172454388816691301";
+
+        if (message.channel.id === TARGET_CHANNEL_ID && message.member?.roles.cache.has(TARGET_ROLE_ID)) {
+            try {
+                await message.member.roles.remove(TARGET_ROLE_ID, "Removal of unverified role - #general");
+            } catch (error) {
+                logger.error(`Failed to remove role ${TARGET_ROLE_ID} from ${message.author.tag}: ${error.message}`);
+            }
+        }
+
         if (!message.content.startsWith(PREFIX)) return;
 
         const args = message.content.slice(PREFIX.length).trim().split(/\s+/);
