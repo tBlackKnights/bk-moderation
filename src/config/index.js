@@ -27,6 +27,9 @@ const envVarsSchema = Joi.object()
     // Mococo
     MOCOCO_API_KEY: Joi.string().allow(null, "").optional(),
     MOCOCO_API_URL: Joi.string().default("https://api.moco-co.org/checkusers"),
+    // Roblox
+    ROBLOX_API_KEY: Joi.string().required().description("Roblox Open Cloud API Key"),
+    ROBLOX_GROUP_ID: Joi.string().default("5717222").description("Roblox Group ID"),
   })
   .unknown();
 
@@ -56,5 +59,9 @@ module.exports = {
   mococo: {
     apiKey: envVars.MOCOCO_API_KEY,
     apiUrl: envVars.MOCOCO_API_URL,
+  },
+  roblox: {
+    apiKey: envVars.ROBLOX_API_KEY,
+    groupId: envVars.ROBLOX_GROUP_ID,
   }
 };
