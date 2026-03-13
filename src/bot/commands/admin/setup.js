@@ -41,6 +41,23 @@ module.exports = {
                         .setDescription("Channel to send the punishment logs.")
                         .setRequired(true)
                 )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("roblox")
+                .setDescription("Setup the Roblox integration.")
+                .addStringOption((option) =>
+                    option
+                        .setName("groupid")
+                        .setDescription("Roblox Group ID.")
+                        .setRequired(true)
+                )
+                .addStringOption((option) =>
+                    option
+                        .setName("apikey")
+                        .setDescription("Roblox Open Cloud API Key.")
+                        .setRequired(true)
+                )
         ),
     async slashExecute(interaction) {
         const subcommand = interaction.options.getSubcommand();
@@ -86,6 +103,22 @@ module.exports = {
 
             await interaction.reply({
                 content: `Punishment logs channel set to ${channel}.`,
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        if (subcommand === "roblox") {
+            const groupId = interaction.options.getString("groupid");
+            const apiKey = interaction.options.getString("apikey");
+
+            await GuildConfig.upsert({
+                guildId: interaction.guildId,
+                robloxGroupId: groupId,
+                robloxApiKey: apiKey
+            });
+
+            await interaction.reply({
+                content: "✅ Roblox configuration (Group ID and API Key) saved successfully.",
                 flags: MessageFlags.Ephemeral
             });
         }

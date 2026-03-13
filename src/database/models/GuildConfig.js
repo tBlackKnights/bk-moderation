@@ -21,6 +21,14 @@ class GuildConfig extends Model {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            robloxGroupId: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            robloxApiKey: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
         }, {
             sequelize,
             modelName: 'GuildConfig',

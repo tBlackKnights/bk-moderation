@@ -2,11 +2,6 @@ const axios = require("axios");
 const config = require("../config/index");
 
 class RobloxService {
-  constructor() {
-    this.apiKey = config.roblox.apiKey;
-    this.groupId = config.roblox.groupId;
-  }
-
   /**
    * Resolves a Roblox username to a User ID.
    * @param {string} username The Roblox username
@@ -28,7 +23,7 @@ class RobloxService {
 
       return users[0].id;
     } catch (error) {
-       if (error.response) {
+      if (error.response) {
         throw new Error(`Failed to resolve username: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
       }
       throw error;
@@ -38,23 +33,27 @@ class RobloxService {
   /**
    * Accepts a user's join request to the configured Roblox group using Open Cloud.
    * @param {string|number} userId The Roblox User ID
+   * @param {Object} credentials Optional credentials { apiKey, groupId }
    * @returns {Promise<Object>} API response data
    */
-  async acceptJoinRequest(userId) {
-    if (!this.apiKey || !this.groupId) {
-      throw new Error("Roblox credentials are not configured. Check ROBLOX_API_KEY and ROBLOX_GROUP_ID in your .env.");
+  async acceptJoinRequest(userId, credentials = {}) {
+    const apiKey = credentials.apiKey
+    const groupId = credentials.groupId
+
+    if (!apiKey || !groupId) {
+      throw new Error("Roblox credentials are not configured for this guild. Use /setup roblox.");
     }
-    
+
     // Open Cloud V2 endpoint for accepting group join request
-    const url = `https://apis.roblox.com/cloud/v2/groups/${this.groupId}/join-requests/${userId}:accept`;
-    
+    const url = `https://apis.roblox.com/cloud/v2/groups/${groupId}/join-requests/${userId}:accept`;
+
     try {
       const response = await axios.post(
         url,
         {}, // Empty body
         {
           headers: {
-            "x-api-key": this.apiKey,
+            "x-api-key": apiKey,
           },
         }
       );
