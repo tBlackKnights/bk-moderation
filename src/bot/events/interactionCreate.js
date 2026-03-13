@@ -24,6 +24,11 @@ module.exports = {
     }
 }
 
+/**
+ * @param {import("discord.js").Interaction} interaction 
+ * @param {import("discord.js").Client} client 
+ * @returns {Promise<void>}
+ */
 async function handleSlashCommand(interaction, client) {
     const command = client.commands.get(interaction.commandName);
 
