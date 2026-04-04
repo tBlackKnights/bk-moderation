@@ -58,6 +58,17 @@ module.exports = {
                         .setDescription("Roblox Open Cloud API Key.")
                         .setRequired(true)
                 )
+        )
+        .addSubcommand((subcommand) =>
+            subcommand
+                .setName("request_help")
+                .setDescription("Setup the request help system.")
+                .addChannelOption((option) =>
+                    option
+                        .setName("channel")
+                        .setDescription("Channel where help requests will be posted.")
+                        .setRequired(true)
+                )
         ),
     async slashExecute(interaction) {
         const subcommand = interaction.options.getSubcommand();
@@ -119,6 +130,41 @@ module.exports = {
 
             await interaction.reply({
                 content: "✅ Roblox configuration (Group ID and API Key) saved successfully.",
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
+        if (subcommand === "request_help") {
+            const channel = interaction.options.getChannel("channel");
+
+            await GuildConfig.upsert({
+                guildId: interaction.guildId,
+                requestHelpChannelId: channel.id
+            });
+
+            const panelEmbed = new EmbedBuilder()
+                .setTitle("📋 Request Help")
+                .setDescription(
+                    "Need assistance? Click the button below to open a help request.\n\n" +
+                    "You will be asked for your **Roblox username**, **floor number**, and a **description** of your issue.\n\n" +
+                    "A helper will assist you as soon as possible."
+                )
+                .setColor(0x5865F2)
+                .setFooter({ text: "Black Knights • Help System" })
+                .setTimestamp();
+
+            const openButton = new ButtonBuilder()
+                .setCustomId("open_help_request")
+                .setLabel("Open a Help Request")
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji("🆘");
+
+            const row = new ActionRowBuilder().addComponents(openButton);
+
+            await channel.send({ embeds: [panelEmbed], components: [row] });
+
+            await interaction.reply({
+                content: `✅ Help request panel sent to ${channel}. Players can now open requests there.`,
                 flags: MessageFlags.Ephemeral
             });
         }

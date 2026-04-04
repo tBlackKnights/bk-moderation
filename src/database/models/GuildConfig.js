@@ -29,6 +29,10 @@ class GuildConfig extends Model {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            requestHelpChannelId: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
         }, {
             sequelize,
             modelName: 'GuildConfig',

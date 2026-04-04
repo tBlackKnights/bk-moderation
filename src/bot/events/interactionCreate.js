@@ -91,17 +91,21 @@ async function handleButton(interaction, client) {
 }
 
 async function handleModal(interaction, client) {
-    const modal = client.modals.get(interaction.customId);
+    // Support dynamic customId: baseId:part1:part2...
+    const parts = interaction.customId.split(":");
+    const baseId = parts[0];
+
+    const modal = client.modals.get(baseId);
 
     if (!modal) {
-        logger.error(`No modal matching ${interaction.customId} was found.`);
+        logger.error(`No modal matching ${baseId} was found.`);
         return;
     }
 
     try {
-        await modal.execute(interaction, client);
+        await modal.execute(interaction, client, parts.slice(1));
     } catch (error) {
-        logger.error(`Error executing modal ${interaction.customId}: ${error}`);
+        logger.error(`Error executing modal ${baseId}: ${error}`);
         if (interaction.replied || interaction.deferred) {
             await interaction.followUp({ content: 'There was an error while executing this modal!', flags: MessageFlags.Ephemeral });
         } else {
@@ -109,6 +113,7 @@ async function handleModal(interaction, client) {
         }
     }
 }
+
 
 async function handleSelectMenu(interaction, client) {
     const menu = client.selectMenus.get(interaction.customId);
