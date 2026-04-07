@@ -137,11 +137,6 @@ module.exports = {
         if (subcommand === "request_help") {
             const channel = interaction.options.getChannel("channel");
 
-            await GuildConfig.upsert({
-                guildId: interaction.guildId,
-                requestHelpChannelId: channel.id
-            });
-
             const panelEmbed = new EmbedBuilder()
                 .setTitle("📋 Request Help")
                 .setDescription(
@@ -161,7 +156,13 @@ module.exports = {
 
             const row = new ActionRowBuilder().addComponents(openButton);
 
-            await channel.send({ embeds: [panelEmbed], components: [row] });
+            const panelMessage = await channel.send({ embeds: [panelEmbed], components: [row] });
+
+            await GuildConfig.upsert({
+                guildId: interaction.guildId,
+                requestHelpChannelId: channel.id,
+                requestHelpPanelMessageId: panelMessage.id
+            });
 
             await interaction.reply({
                 content: `✅ Help request panel sent to ${channel}. Players can now open requests there.`,
