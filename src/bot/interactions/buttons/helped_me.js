@@ -54,7 +54,19 @@ module.exports = {
         }
 
         const responseMessage = collected.first();
-        const helperUsers = [...responseMessage.mentions.users.values()];
+        
+        // Filter out bots and the requester
+        const helperUsers = [...responseMessage.mentions.users.values()].filter(
+            u => !u.bot && u.id !== requesterId
+        );
+
+        if (helperUsers.length === 0) {
+            await promptMessage.delete().catch(() => {});
+            await responseMessage.delete().catch(() => {});
+            return thread.send({
+                content: `❌ ${interaction.user}, you mentioned only bots or yourself. No helpers were registered. Click **Someone helped me** again if you want to mention a valid helper.`
+            });
+        }
 
         // Build mention strings
         const helperMentions = helperUsers.map(u => `<@${u.id}>`).join(", ");
