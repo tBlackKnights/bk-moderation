@@ -9,7 +9,7 @@ module.exports = {
         .setDescription("View helper statistics and ranking.")
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async slashExecute(interaction) {
-        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        await interaction.deferReply();
 
         try {
             // Aggregate helps by helperId
