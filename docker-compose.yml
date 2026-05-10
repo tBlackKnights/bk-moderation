@@ -1,0 +1,14 @@
+services:
+  bot:
+    build: .
+    container_name: bk-moderation-bot
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./database.sqlite:/app/database.sqlite
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

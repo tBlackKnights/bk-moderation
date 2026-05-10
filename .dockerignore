@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+yarn-error.log
+.env
+.env.*
+.git
+.gitignore
+Dockerfile
+.dockerignore
+docker-compose.yml
+database.sqlite
