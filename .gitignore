@@ -152,8 +152,9 @@ ehthumbs_vista.db
 $RECYCLE.BIN/
 
 # Lock files
-yarn.lock
-package-lock.json
+# yarn.lock
+# package-lock.json
+
 yarn-error.log
 
 database.sqlite
